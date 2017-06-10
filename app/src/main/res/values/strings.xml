@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">LandMarket</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string-array name="addresses">
+        <item>Bar Kochva St, Ashkelon, Israel</item>
+        <item>Ha-Tayasim St 7, Ashkelon, Israel</item>
+        <item>ar Kochva St 55, Ashkelon, Israel</item>
+        <item>Yefe Nof St,Ashkelon,Israel</item>
+        <item>Golani St 10, Ashkelon, Israel</item>
+        <item>Moshe Dayan St, Ashkelon, Israel</item>
+        <item>HaShayetet St 48, Ashkelon, Israel</item>
+        <item>Sderot Drom Afrika 74, Ashkelon, Israel</item>
+        <item>Yekhezkel Zonabend St 1, Ashkelon, Israel</item>
+    </string-array>
+    <string-array name="status">
+        <item>Selling</item>
+        <item>Buying</item>
+        <item>Pause</item>
+    </string-array>
+</resources>
