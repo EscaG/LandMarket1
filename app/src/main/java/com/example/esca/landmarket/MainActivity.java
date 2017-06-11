@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.esca.landmarket.adapters.MyRecyclerAdapter;
+import com.example.esca.landmarket.fragments.FragmentFirstMap;
+import com.example.esca.landmarket.fragments.FragmentLandForBuyer;
 import com.example.esca.landmarket.fragments.FragmentLogin;
 import com.example.esca.landmarket.fragments.FragmentMap;
 import com.example.esca.landmarket.fragments.FragmentProfile;
@@ -43,7 +45,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentLogin.FragmentListenerLogin, FragmentRegistration.FragmentListenerRegistration, FragmentSections.NextFromFragmentSections, View.OnClickListener, FragmentProfile.FragmentListenerProfile, FragmentProfileEdit.FragmentListenerFromProfileEdit, SellerInfo.DownloadClient {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentLogin.FragmentListenerLogin, FragmentRegistration.FragmentListenerRegistration, FragmentSections.NextFromFragmentSections, View.OnClickListener, FragmentProfile.FragmentListenerProfile, FragmentProfileEdit.FragmentListenerFromProfileEdit, SellerInfo.DownloadClient, FragmentFirstMap.ShowLoadLand {
     private final int SELECT_PHOTO = 1;
     private FragmentManager manager;
     private FragmentTransaction transaction;
@@ -61,7 +63,16 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        manager = getSupportFragmentManager();
+        //////////////////////////////////////////
+//        FragmentManager manager = getSupportFragmentManager();
+//        android.support.v4.app.FragmentTransaction transaction = manager.beginTransaction();
+        FragmentFirstMap fragment = new FragmentFirstMap();
+        fragment.setSelectedMasterListene(this);
+        transaction = manager.beginTransaction();
+        transaction.replace(R.id.map_container, fragment, "FIRST_MAP");
+        transaction.commit();
+        ////////////////////////////////////
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,7 +93,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         containerFragment = (FrameLayout) findViewById(R.id.frag_container);
         mapContainer = (LinearLayout) findViewById(R.id.map_container);
-        manager = getSupportFragmentManager();
+
         handler = new Handler();
     }
     @Override
@@ -119,7 +130,13 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+        } else if (goBack) {
+            super.onBackPressed();
+            goBack = false;
         } else {
+//            fab.setVisibility(View.VISIBLE);
+            mapContainer.setVisibility(View.VISIBLE);
+            toolbar.setTitle("Land Market");
             super.onBackPressed();
         }
     }
@@ -181,6 +198,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 break;
             case R.id.nav_menu_login:
+                clearBackStack();
+                toolbar.setTitle("Login");
                 FragmentLogin fragmentLogin = new FragmentLogin();
                 fragmentLogin.setFragmentListener(this);
                 transaction.replace(R.id.frag_container, fragmentLogin, "LOGIN");
@@ -223,6 +242,20 @@ public class MainActivity extends AppCompatActivity
         fragmentLogin.setFragmentListener(this);
         transaction.replace(R.id.frag_container, fragmentLogin, "FRAG_LOGIN");
         transaction.addToBackStack("FRAG_LOGIN");
+        transaction.commit();
+    }
+    public void startRegistrationFragment() {
+        toolbar.setTitle("Registration");
+        SharedPreferences sharedPreferences = getSharedPreferences("ACTION", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("REGISTR_ACT", true).commit();
+        editor.commit();
+        FragmentManager manager = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction transaction = manager.beginTransaction();
+        FragmentRegistration fragment = new FragmentRegistration();
+        fragment.setFragmentListener(this);
+        transaction.replace(R.id.frag_container, fragment, "CREATE_ACC");
+        transaction.addToBackStack("CREATE_ACC");
         transaction.commit();
     }
 
@@ -294,6 +327,7 @@ public class MainActivity extends AppCompatActivity
                     .addToBackStack("SHOW_ON_THE_MAP")
                     .commit();
         }else  if (bool && landInfo != null){
+            goBack = true;
             FragmentSectionEdit fragmentSectionEdit = new FragmentSectionEdit();
             fragmentSectionEdit.setAdapterPosition(adapter,position,landInfo);
 
@@ -344,8 +378,24 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    public void onClick(View v) {
-
+    public void onClick(View view) {
+        int id = view.getId();
+        if (id == R.id.nav_header_btn_signIn) {
+            clearBackStack();
+            startLoginFragment();
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        } else if (id == R.id.nav_header_btn_signUp) {
+            goBack = true;
+            clearBackStack();
+            startRegistrationFragment();
+            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            }
+        }
     }
 
 
@@ -369,6 +419,19 @@ public class MainActivity extends AppCompatActivity
         this.seller = seller;
         name.setText(seller.getConfirm());
         email.setText(seller.getEmail());
+    }
+    private LandInfo landInfo;
+    @Override
+    public void showLand(LandInfo landInfo) {
+        this.landInfo = landInfo;
+
+        transaction = manager.beginTransaction();
+
+        FragmentLandForBuyer fragmentLandForBuyer = new FragmentLandForBuyer();
+        transaction.replace(R.id.map_container, fragmentLandForBuyer, "FRAG_SELLER");
+        fragmentLandForBuyer.setLand(this.landInfo);
+        transaction.addToBackStack("FRAG_SELLER");
+        transaction.commit();
     }
 
     public interface IImageCompleteListener {
