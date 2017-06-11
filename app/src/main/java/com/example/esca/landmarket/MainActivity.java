@@ -265,10 +265,6 @@ public class MainActivity extends AppCompatActivity
     public void onClickNextFromLogin(boolean bool) {
         goBack = true;
         if (bool) {
-//            toolbar.setTitle("Land Market");
-//            getSupportFragmentManager().popBackStack();
-//            mapCotainer.setVisibility(View.VISIBLE);
-//            fab.setVisibility(View.VISIBLE);
             SharedPreferences sharedPreferences = getSharedPreferences("ACTION", MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("ACTION", true).commit();
@@ -284,7 +280,7 @@ public class MainActivity extends AppCompatActivity
             transaction.replace(R.id.frag_container, fragmentRegistration, "CREATE_ACC");
             transaction.addToBackStack("CREATE_ACC");
             transaction.commit();
-            toolbar.setTitle("Create account");
+            toolbar.setTitle("Registration");
         }
     }
 
@@ -293,9 +289,10 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences sharedPreferences = getSharedPreferences("ACTION", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         boolean registrAct = sharedPreferences.getBoolean("REGISTR_ACT", false);
+        goBack=true;
         if (bool) {
             editor.putBoolean("ACTION", true).commit();
-            editor.commit();
+//            editor.commit();
             Intent intent = new Intent(this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
