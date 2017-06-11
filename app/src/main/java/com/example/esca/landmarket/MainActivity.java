@@ -168,18 +168,19 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.nav_menu_active_sections:
-                clearBackStack();
-                if (!result) {
-                    startLoginFragment();
-                } else {
-
-                }
+//                clearBackStack();
+//                if (!result) {
+//                    startLoginFragment();
+//                } else {
+//
+//                }
                 break;
             case R.id.nav_menu_my_sections:
                 clearBackStack();
                 if (!result) {
                     startLoginFragment();
                 } else {
+                    toolbar.setTitle("Sections");
                     FragmentSections fragmentSections = new FragmentSections();
                     fragmentSections.setFragmentListener(this);
                     transaction.replace(R.id.frag_container, fragmentSections, "SECTIONS");
@@ -191,6 +192,7 @@ public class MainActivity extends AppCompatActivity
                 if (!result) {
                     startLoginFragment();
                 } else {
+                    toolbar.setTitle("Profile");
                     FragmentProfile fragmentProfile = new FragmentProfile();
                     fragmentProfile.setFragmentListener(this);
                     transaction.replace(R.id.frag_container,fragmentProfile,"PROFILE");
@@ -375,8 +377,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
     @Override
     public void onClick(View view) {
         int id = view.getId();
@@ -398,7 +398,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
@@ -414,24 +413,23 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onLoadClient(Seller seller) {
-        this.seller = seller;
-        name.setText(seller.getConfirm());
-        email.setText(seller.getEmail());
-    }
     private LandInfo landInfo;
     @Override
     public void showLand(LandInfo landInfo) {
         this.landInfo = landInfo;
-
         transaction = manager.beginTransaction();
-
         FragmentLandForBuyer fragmentLandForBuyer = new FragmentLandForBuyer();
         transaction.replace(R.id.map_container, fragmentLandForBuyer, "FRAG_SELLER");
         fragmentLandForBuyer.setLand(this.landInfo);
         transaction.addToBackStack("FRAG_SELLER");
         transaction.commit();
+    }
+
+    @Override
+    public void onLoadClient(Seller seller) {
+        this.seller = seller;
+        name.setText(seller.getConfirm());
+        email.setText(seller.getEmail());
     }
 
     public interface IImageCompleteListener {
