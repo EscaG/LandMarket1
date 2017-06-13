@@ -5,6 +5,16 @@
     android:layout_height="match_parent"
     tools:context="com.example.esca.landmarket.ActivityAddSection">
 
+    <FrameLayout
+        android:id="@+id/container_for_add_frag"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:visibility="invisible">
+
+    </FrameLayout>
     <ScrollView
         android:id="@+id/container_activity"
         android:layout_width="match_parent"
@@ -18,6 +28,7 @@
             android:layout_height="match_parent">
 
             <AutoCompleteTextView
+                android:textColor="#000"
                 android:id="@+id/add_section_autocomplete"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -29,6 +40,7 @@
 
 
             <EditText
+                android:textColor="#000"
                 android:id="@+id/add_section_area"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -40,6 +52,7 @@
                 android:textSize="18sp" />
 
             <EditText
+                android:textColor="#000"
                 android:id="@+id/add_section_assignment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,6 +64,7 @@
                 android:textSize="18sp" />
 
             <EditText
+                android:textColor="#000"
                 android:id="@+id/add_section_price"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -62,6 +76,7 @@
                 android:textSize="18sp" />
 
             <EditText
+                android:textColor="#000"
                 android:id="@+id/add_section_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -73,6 +88,7 @@
                 android:textSize="18sp" />
 
             <EditText
+                android:textColor="#000"
                 android:id="@+id/add_section_owner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -123,6 +139,7 @@
             </LinearLayout>
 
             <Button
+                android:background="@drawable/buttontheme_btn_default_holo_light"
                 android:id="@+id/add_section_btn_show_on_the_map"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -142,6 +159,7 @@
                 android:weightSum="3">
 
                 <Button
+                    android:background="@drawable/buttontheme_btn_default_holo_light"
                     android:id="@+id/add_section_btn_back"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -155,6 +173,7 @@
                     android:layout_weight="1"/>
 
                 <Button
+                    android:background="@drawable/buttontheme_btn_default_holo_light"
                     android:id="@+id/add_section_btn_add"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -166,14 +185,5 @@
         </RelativeLayout>
     </ScrollView>
 
-    <FrameLayout
-        android:id="@+id/container_for_add_frag"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:visibility="invisible">
 
-    </FrameLayout>
 </RelativeLayout>

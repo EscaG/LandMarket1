@@ -6,6 +6,7 @@
 
 
     <TextView
+        android:textColor="#000"
         android:id="@+id/frag_section_edit_view_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,6 +17,7 @@
         android:textSize="18sp" />
 
     <TextView
+        android:textColor="#000"
         android:id="@+id/frag_section_edit_view_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,6 +62,7 @@
         android:textSize="18sp" />
 
     <TextView
+        android:textColor="#000"
         android:id="@+id/frag_section_edit_view_owner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

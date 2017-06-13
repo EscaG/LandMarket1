@@ -1,6 +1,7 @@
 package com.example.esca.landmarket.fragments;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,12 +58,16 @@ public class FragmentSections extends Fragment implements View.OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_sections, container, false);
+
         fab = (FloatingActionButton) view.findViewById(R.id.frag_first_fab_add_item);
+//        fab.setImageResource(R.mipmap.cat);
+//        fab.setBackgroundColor(Color.BLUE);
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_item_list);
         progressFrame = (FrameLayout) view.findViewById(R.id.frag_progress_bar);
         updateListTask = new UpdateListTask();
         updateListTask.execute();
         fab.setOnClickListener(this);
+        fab.setImageResource(R.drawable.ic_add);
         adapter = new MyRecyclerAdapter(this);
         myList = (RecyclerView) view.findViewById(R.id.frag_sections_recycler_view);
         myList.setLayoutManager(new LinearLayoutManager(getActivity()));

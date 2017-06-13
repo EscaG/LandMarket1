@@ -63,7 +63,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Log.d("MY_TAG", "MyAdapter onCreateViewHolder()");
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_section, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_sections, parent, false);
         MyViewHolder holder = new MyViewHolder(view);
         return holder;
     }
@@ -76,6 +76,8 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
         holder.price.setText(landRegister.getPrice());
         holder.description.setText(landRegister.getDescription());
         holder.address.setText(landRegister.getAddress());
+        holder.area.setText(landRegister.getArea());
+        holder.owner.setText(landRegister.getOwner());
 
     }
 
@@ -91,11 +93,14 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
 
         public MyViewHolder(View view) {
             super(view);
-            assignment = (TextView) view.findViewById(R.id.row_section_assignment);
-            price = (TextView) view.findViewById(R.id.row_section_price);
-            description = (TextView) view.findViewById(R.id.row_section_description);
-            address = (TextView) view.findViewById(R.id.row__section_address);
-            btnShowOnTheMap = (Button) view.findViewById(R.id.row_section_show_on_the_map);
+            owner = (TextView) view.findViewById(R.id.row_sections_view_owner);
+            area = (TextView) view.findViewById(R.id.row_sections_view_area);
+            assignment = (TextView) view.findViewById(R.id.row_sections_view_assignment);
+            price = (TextView) view.findViewById(R.id.row_sections_view_price);
+            description = (TextView) view.findViewById(R.id.row_sections_view_date);
+            address = (TextView) view.findViewById(R.id.row_sections_view_address);
+
+            btnShowOnTheMap = (Button) view.findViewById(R.id.row_sections_btn_show_on_the_map);
             btnShowOnTheMap.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

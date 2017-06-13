@@ -33,6 +33,7 @@
                 android:layout_marginRight="20dp"/>
 
             <Button
+                android:background="@drawable/buttontheme_btn_default_holo_light"
                 android:layout_gravity="bottom"
                 android:id="@+id/frag_profile_edit_btn_logo"
                 android:layout_width="123dp"
@@ -126,6 +127,7 @@
             android:orientation="horizontal">
 
             <Button
+                android:background="@drawable/buttontheme_btn_default_holo_light"
                 android:id="@+id/frag_profile_edit_btn_back"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,6 +143,7 @@
                 android:layout_weight="1" />
 
             <Button
+                android:background="@drawable/buttontheme_btn_default_holo_light"
                 android:id="@+id/frag_profile_edit_btn_save"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

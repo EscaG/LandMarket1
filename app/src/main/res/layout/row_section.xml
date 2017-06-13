@@ -34,7 +34,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/row__section_address"
+                android:id="@+id/row_section_address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
@@ -142,6 +142,7 @@
                     android:textSize="18sp" />
 
                 <Button
+                    android:background="@drawable/buttontheme_btn_default_holo_light"
                     android:id="@+id/row_section_show_on_the_map"
                     android:layout_width="match_parent"
                     android:layout_height="36dp"

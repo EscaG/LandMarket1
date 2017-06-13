@@ -61,10 +61,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:layout_margin="20dp"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp">
 
         <Button
+            android:background="@drawable/buttontheme_btn_default_holo_light"
             android:id="@+id/frag_login_btn_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -1,12 +1,17 @@
 package com.example.esca.landmarket;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +23,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -45,9 +49,15 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class ActivityAddSection extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
@@ -62,7 +72,17 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
             new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
     private boolean goBack = false;
     private Handler handler;
-    private EditText  inputArea, inputAssignment, inputPrice, inputDescription, inputOwner;
+    private EditText inputArea, inputAssignment, inputPrice, inputDescription, inputOwner;
+    private Bitmap bitmap;
+    private File destination = null;
+    private InputStream inputStreamImg;
+    private String imgPath = null;
+    private final int PICK_IMAGE_CAMERA_FIRST = 1;
+    private final int PICK_IMAGE_CAMERA_SECOND = 2;
+    private final int PICK_IMAGE_CAMERA_THIRD = 3;
+    private final int PICK_IMAGE_GALLERY_FIRST = 4;
+    private final int PICK_IMAGE_GALLERY_SECOND = 5;
+    private final int PICK_IMAGE_GALLERY_THIRD = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +173,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
             String description = inputDescription.getText().toString();
             String address = inputAddress.getText().toString();
             String owner = inputOwner.getText().toString();
-            String json = new Gson().toJson(new LandRegister(area,assignment,price,description,address,owner));
+            String json = new Gson().toJson(new LandRegister(area, assignment, price, description, address, owner));
             RequestBody body = RequestBody.create(type, json);
             Request request = new Request.Builder()
                     .url("https://landmarket1.herokuapp.com/register/land")
@@ -191,58 +211,192 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
                 }
             });
         } else if (v.getId() == R.id.image_first) {
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, 1);
+            selectImage(PICK_IMAGE_CAMERA_FIRST, PICK_IMAGE_GALLERY_FIRST);
+//            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//            photoPickerIntent.setType("image/*");
+//            startActivityForResult(photoPickerIntent, 1);
         } else if (v.getId() == R.id.image_second) {
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, 2);
+            selectImage(PICK_IMAGE_CAMERA_SECOND, PICK_IMAGE_GALLERY_SECOND);
+
+//            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//            photoPickerIntent.setType("image/*");
+//            startActivityForResult(photoPickerIntent, 2);
         } else if (v.getId() == R.id.image_third) {
-            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-            photoPickerIntent.setType("image/*");
-            startActivityForResult(photoPickerIntent, 3);
+            selectImage(PICK_IMAGE_CAMERA_THIRD, PICK_IMAGE_GALLERY_THIRD);
+//            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+//            photoPickerIntent.setType("image/*");
+//            startActivityForResult(photoPickerIntent, 3);
+        }
+    }
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+//        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+//        if (requestCode == 1 && resultCode == RESULT_OK) {
+//            try {
+//                Uri imageUri = imageReturnedIntent.getData();
+//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
+//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+////                MainActivity.CompleteManager.callComplete(selectedImage);
+//                imageFirst.setImageBitmap(selectedImage);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (requestCode == 2 && resultCode == RESULT_OK) {
+//            try {
+//                Uri imageUri = imageReturnedIntent.getData();
+//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
+//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+////                MainActivity.CompleteManager.callComplete(selectedImage);
+//                imageSecond.setImageBitmap(selectedImage);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//        } else if (requestCode == 3 && resultCode == RESULT_OK) {
+//            try {
+//                Uri imageUri = imageReturnedIntent.getData();
+//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
+//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+////                MainActivity.CompleteManager.callComplete(selectedImage);
+//                imageThird.setImageBitmap(selectedImage);
+//            } catch (FileNotFoundException e) {
+//                e.printStackTrace();
+//            }
+//
+//
+//        }
+//    }
+
+    private void selectImage(final int cameraPosition,final int galleryPosition) {
+        try {
+            PackageManager pm = getPackageManager();
+            int hasPerm = pm.checkPermission(Manifest.permission.CAMERA, getPackageName());
+            if (hasPerm == PackageManager.PERMISSION_GRANTED) {
+                final CharSequence[] options = {"Take Photo", "Choose From Gallery", "Cancel"};
+                android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
+                builder.setTitle("Select Option");
+//                builder.setView(R.layout.custom_dialog);
+//                builder.setIcon(R.mipmap.ic_launcher);
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int item) {
+                        if (options[item].equals("Take Photo")) {
+                            dialog.dismiss();
+                            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                            switch (cameraPosition){
+                                case PICK_IMAGE_CAMERA_FIRST:
+                                    startActivityForResult(intent, cameraPosition);
+                                    break;
+                                case PICK_IMAGE_CAMERA_SECOND:
+                                    startActivityForResult(intent, cameraPosition);
+                                    break;
+                                case PICK_IMAGE_CAMERA_THIRD:
+                                    startActivityForResult(intent, cameraPosition);
+                                    break;
+                            }
+//                            startActivityForResult(intent, PICK_IMAGE_CAMERA_FIRST);
+                        } else if (options[item].equals("Choose From Gallery")) {
+                            dialog.dismiss();
+                            Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                            switch (galleryPosition){
+                                case PICK_IMAGE_GALLERY_FIRST:
+                                    startActivityForResult(pickPhoto, galleryPosition);
+                                    break;
+                                case PICK_IMAGE_GALLERY_SECOND:
+                                    startActivityForResult(pickPhoto, galleryPosition);
+                                    break;
+                                case PICK_IMAGE_GALLERY_THIRD:
+                                    startActivityForResult(pickPhoto, galleryPosition);
+                                    break;
+                            }
+
+                        } else if (options[item].equals("Cancel")) {
+                            dialog.dismiss();
+                        }
+                    }
+                });
+                builder.show();
+            } else
+                Toast.makeText(this, "Camera Permission error", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "Camera Permission error", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+//        inputStreamImg = null;
+        if (requestCode == PICK_IMAGE_CAMERA_FIRST || requestCode == PICK_IMAGE_CAMERA_SECOND || requestCode == PICK_IMAGE_CAMERA_THIRD) {
             try {
-                Uri imageUri = imageReturnedIntent.getData();
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//                MainActivity.CompleteManager.callComplete(selectedImage);
-                imageFirst.setImageBitmap(selectedImage);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-            try {
-                Uri imageUri = imageReturnedIntent.getData();
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//                MainActivity.CompleteManager.callComplete(selectedImage);
-                imageSecond.setImageBitmap(selectedImage);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-        } else if (requestCode == 3 && resultCode == RESULT_OK) {
-            try {
-                Uri imageUri = imageReturnedIntent.getData();
-                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-//                MainActivity.CompleteManager.callComplete(selectedImage);
-                imageThird.setImageBitmap(selectedImage);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+                Uri selectedImage = data.getData();
+                bitmap = (Bitmap) data.getExtras().get("data");
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
 
+                Log.e("Activity", "Pick from Camera::>>> ");
 
+                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+                destination = new File(Environment.getExternalStorageDirectory() + "/" +
+                        getString(R.string.app_name), "IMG_" + timeStamp + ".jpg");
+                FileOutputStream fo;
+                try {
+                    destination.createNewFile();
+                    fo = new FileOutputStream(destination);
+                    fo.write(bytes.toByteArray());
+                    fo.close();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                imgPath = destination.getAbsolutePath();
+                if (requestCode == PICK_IMAGE_CAMERA_FIRST){
+                    imageFirst.setImageBitmap(bitmap);
+                }else if (requestCode == PICK_IMAGE_CAMERA_SECOND){
+                    imageSecond.setImageBitmap(bitmap);
+                }else if (requestCode == PICK_IMAGE_CAMERA_THIRD){
+                    imageThird.setImageBitmap(bitmap);
+                }
+//                imageview.setImageBitmap(bitmap);
+//                MainActivity.CompleteManager.callComplete(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (requestCode == PICK_IMAGE_GALLERY_FIRST || requestCode == PICK_IMAGE_GALLERY_SECOND || requestCode == PICK_IMAGE_GALLERY_THIRD ) {
+            try {
+                Uri selectedImage = data.getData();
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImage);
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, bytes);
+                Log.e("Activity", "Pick from Gallery::>>> ");
+
+                imgPath = getRealPathFromURI(selectedImage);
+                destination = new File(imgPath.toString());
+                if (requestCode == PICK_IMAGE_GALLERY_FIRST){
+                    imageFirst.setImageBitmap(bitmap);
+                }else if (requestCode == PICK_IMAGE_GALLERY_SECOND){
+                    imageSecond.setImageBitmap(bitmap);
+                }else if (requestCode == PICK_IMAGE_GALLERY_THIRD){
+                    imageThird.setImageBitmap(bitmap);
+                }
+//                imageview.setImageBitmap(bitmap);
+//                MainActivity.CompleteManager.callComplete(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
+    public String getRealPathFromURI(Uri contentUri) {
+        String[] proj = {MediaStore.Audio.Media.DATA};
+        Cursor cursor = managedQuery(contentUri, proj, null, null, null);
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
 
     /**
      * Listener that handles selections from suggestions from the AutoCompleteTextView that
@@ -302,6 +456,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
         // TODO(Developer): Check error code and notify the user of error state and resolution.
         Toast.makeText(this, "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(), Toast.LENGTH_SHORT).show();
     }
+
     class ErrorRequest implements Runnable {
         private String result;
 

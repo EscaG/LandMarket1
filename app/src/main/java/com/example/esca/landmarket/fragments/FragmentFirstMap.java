@@ -82,10 +82,11 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
             new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
     private LinearLayout linear;
     private String location = "";
-        private Map<LandInfo, LatLng> landLatLngMap = new HashMap<>();
+    private Map<LandInfo, LatLng> landLatLngMap = new HashMap<>();
     private MapView mMapView;
     private ShowLoadLand listener;
     private ArrayList<LandInfo> landInfoArrayList = new ArrayList<LandInfo>();
+    private ImageView imgSearch;
 
     @Nullable
     @Override
@@ -109,7 +110,9 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
         } catch (Exception e) {
 
         }
-        btnSearch = (Button) view.findViewById(R.id.map_first_btn_search);
+        imgSearch = (ImageView) view.findViewById(R.id.map_first_img_search);
+        imgSearch.setOnClickListener(this);
+//        btnSearch = (Button) view.findViewById(R.id.map_first_btn_search);
         inputAddress = (AutoCompleteTextView) view.findViewById(R.id.map_first_input_search_address);
         inputAddress.setOnItemClickListener(mAutocompleteClickListener);
         inputAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -121,31 +124,28 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
         mAdapter = new PlaceAutocompleteAdapter(getActivity(), mGoogleApiClient, BOUNDS_GREATER_SYDNEY, null);
         inputAddress.setAdapter(mAdapter);
         geocoder = new Geocoder(getActivity().getBaseContext());
-        btnSearch.setOnClickListener(this);
+//        btnSearch.setOnClickListener(this);
 
         linear = (LinearLayout) view.findViewById(R.id.linear);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("ACTION", getActivity().MODE_PRIVATE);
         boolean result = sharedPreferences.getBoolean("ACTION", false);
         if (!result) {
             linear.setVisibility(View.VISIBLE);
+            if (landLatLngMap.isEmpty()) {
+                new GetAllMasters().execute();
+                Log.d(TAG, "onCreateView: 1");
+            } else {
+//                handler.post(new FillMap());
+                Log.d(TAG, "onCreateView: 2");
+                new GetAllMasters().execute();
+            }
+
         } else {
             linear.setVisibility(View.GONE);
         }
 
-
-//        if (masterLatLngMap.isEmpty()) {
-//            new GetAllMasters().execute();
-//            Log.d(TAG, "onCreateView: 1");
-//        } else {
-//            handler.post(new FillMap());
-//            Log.d(TAG, "onCreateView: 2");
-//        }
-//        try {
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         mMapView.getMapAsync(this);
-        new GetAllMasters().execute();
+
         return view;
     }
 
@@ -209,7 +209,7 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.map_first_btn_search:
+            case R.id.map_first_img_search:
                 List<Address> addressList = null;
                 location = inputAddress.getText().toString();
 
@@ -250,8 +250,9 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPreExecute() {
+//            landLatLngMap = new HashMap<>();
+            super.onPreExecute();
         }
 
         @Override
@@ -277,30 +278,32 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
 
                 @Override
                 public void onResponse(Response response) throws IOException {
-                    Log.d(TAG, "onResponse: " + response.code());
+//                    Log.d(TAG, "onResponse: " + response.code());
 
                     if (response.isSuccessful()) {
 
                         TypeToken<List<LandInfo>> typeToken = new TypeToken<List<LandInfo>>() {
                         };
                         landInfoArrayList = new Gson().fromJson(response.body().string(), typeToken.getType());
+
                         for (LandInfo landInfo : landInfoArrayList) {
                             Log.d(TAG, "addMarkersToMap: " + landInfo.getAddress() + landInfo.getPrice());
-                            if (landInfo.getAddress() != null) {
+                            if (!landInfo.getAddress().equals("")) {
                                 try {
                                     List<Address> address = geocoder.getFromLocationName(landInfo.getAddress(), 1);
                                     Address location = address.get(0);
 //                                        location.getLatitude();
 //                                        location.getLongitude();
                                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                        landLatLngMap.put(landInfo, latLng);
+                                    landLatLngMap.put(landInfo, latLng);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
-                                handler.post(new FillMap());
+
 
                             }
                         }
+                        handler.post(new FillMap());
                     } else if (response.code() == 401) {
                         new ErrorRequest("WTF");
                     }
@@ -308,70 +311,77 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
             });
             return null;
         }
+
     }
 
     class FillMap implements Runnable {
         LatLng latLng;
 
-        public FillMap(LatLng latLng) {
-            this.latLng = latLng;
-        }
+        public FillMap(){
 
-        public FillMap() {
         }
+//        private Map<LandInfo, LatLng> landLatLngMap = new HashMap<>();
+//
+//        private GoogleMap googleMap;
+//        public FillMap(LatLng latLng) {
+//            this.latLng = latLng;
+//        }
+//
+//        public FillMap(Map<LandInfo, LatLng> landLatLngMap, GoogleMap googleMap) {
+//            this.landLatLngMap = landLatLngMap;
+//            this.googleMap = googleMap;
+//        }
 
         @Override
         public void run() {
-            try {
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("ACTION", getActivity().MODE_PRIVATE);
-                boolean result = sharedPreferences.getBoolean("ACTION", false);
-                if (!result) {
-//                    try {
-                    for (Map.Entry<LandInfo, LatLng> entry : landLatLngMap.entrySet()) {
-                        Marker marker = googleMap.addMarker(new MarkerOptions().position(entry.getValue()).title(entry.getKey().getOwner()).snippet(entry.getKey().getAddress()));
-//                        googleMap.addMarker(new MarkerOptions().position(latLng).title(master.getEmail()).snippet(master.getAddresses()));
-//                    for (LandInfo landInfo : landInfoArrayList) {
-//                        Marker marker = googleMap.addMarker(new MarkerOptions().position(latLng).title(landInfo.getOwner()).snippet(landInfo.getAddress()));
 
-                        if (marker.getSnippet() != null || !marker.getSnippet().equals("")) {
-                            googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                                @Override
-                                public View getInfoWindow(Marker marker) {
-                                    ContextThemeWrapper wrapper = new ContextThemeWrapper(getActivity().getApplicationContext(), R.style.Theme_AppCompat_DayNight_Dialog);
-                                    LayoutInflater inflater = (LayoutInflater) wrapper.getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
-                                    View v = inflater.inflate(R.layout.info_window_for_map, null);
-                                    TextView name = (TextView) v.findViewById(R.id.info_window_name);
-                                    TextView address = (TextView) v.findViewById(R.id.info_window_address);
-                                    ImageView image = (ImageView) v.findViewById(R.id.info_window_image);
+            //   try {
+//                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("ACTION", getActivity().MODE_PRIVATE);
+//                boolean result = sharedPreferences.getBoolean("ACTION", false);
+//                if (!result) {
 
-                                    name.setText(marker.getTitle());
-                                    address.setText(marker.getSnippet());
-                                    return v;
-                                }
+            for (Map.Entry<LandInfo, LatLng> entry : landLatLngMap.entrySet()) {
+                Log.d(TAG, "run: " + landLatLngMap.isEmpty() + "  " + entry.getKey().getAddress() + entry.getValue());
+                googleMap.addMarker(new MarkerOptions().position(entry.getValue()).title(entry.getKey().getOwner()).snippet(entry.getKey().getAddress()));
 
-                                @Override
-                                public View getInfoContents(Marker marker) {
+//                        if (marker.getSnippet() != null || !marker.getSnippet().equals("")) {
+                googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                        ContextThemeWrapper wrapper = new ContextThemeWrapper(getActivity().getApplicationContext(), R.style.Theme_AppCompat_DayNight_Dialog);
+                        LayoutInflater inflater = (LayoutInflater) wrapper.getSystemService(getActivity().LAYOUT_INFLATER_SERVICE);
+                        View v = inflater.inflate(R.layout.info_window_for_map, null);
+                        TextView name = (TextView) v.findViewById(R.id.info_window_name);
+                        TextView address = (TextView) v.findViewById(R.id.info_window_address);
+                        ImageView image = (ImageView) v.findViewById(R.id.info_window_image);
+
+                        name.setText(marker.getTitle());
+                        address.setText(marker.getSnippet());
+                        return v;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
 //                            v = getLayoutInflater().inflate(R.layout.marker_window, null);
 //                            imageView = (ImageView) v.findViewById(R.id.imageView);
 //                            Picasso.with(this).load(chosenMarker.getUrl()).into(imageView);
-                                    marker.showInfoWindow();
-                                    return null;
-                                }
-                            });
-                        }
+                        marker.showInfoWindow();
+                        return null;
                     }
+                });
+
+//                        }
+            }
 //                    } catch (Exception e) {
 //                        e.printStackTrace();
 //                    }
 
 //                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-                }
-            } catch (
-                    Exception e)
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
 
-            {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -385,7 +395,7 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
 
         @Override
         public void run() {
-            Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
+//            Toast.makeText(getActivity(), s, Toast.LENGTH_LONG).show();
         }
 
     }
