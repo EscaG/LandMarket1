@@ -14,11 +14,12 @@
 
     <ImageView
         android:id="@+id/nav_header_input_image"
-        android:layout_width="100dp"
+        android:layout_width="200dp"
         android:layout_height="100dp"
         android:layout_marginLeft="15dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@android:drawable/sym_def_app_icon" />
+        android:src="@mipmap/logo"
+        />
 
     <LinearLayout
         android:id="@+id/nav_header_container_after_login"
@@ -45,6 +46,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:layout_marginLeft="15dp"
         android:id="@+id/nav_header_container_before_login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -81,3 +83,4 @@
     </LinearLayout>
 
 </LinearLayout>
+    <!--app:srcCompat="@android:drawable/sym_def_app_icon" -->

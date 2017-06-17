@@ -1,14 +1,20 @@
 package com.example.esca.landmarket.fragments;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -34,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Esca on 29.03.2017.
  */
 
-public class FragmentLogin extends Fragment implements View.OnClickListener {
+public class FragmentLogin extends Fragment implements View.OnClickListener,TextView.OnEditorActionListener {
     private EditText inputLogin, inputPassword;
     private TextView viewCreateAccount;
     private Button loginBtn;
@@ -54,11 +60,15 @@ public class FragmentLogin extends Fragment implements View.OnClickListener {
         handler = new Handler();
         inputLogin = (EditText) view.findViewById(R.id.frag_login_edit_login);
         inputPassword = (EditText) view.findViewById(R.id.frag_login_edit_password);
+        inputPassword.setOnEditorActionListener(this);
         viewCreateAccount = (TextView) view.findViewById(R.id.frag_login_create_acc);
         loginBtn = (Button) view.findViewById(R.id.frag_login_btn_login);
         progressFrame = (FrameLayout) view.findViewById(R.id.frag_login_progress_frame);
         loginBtn.setOnClickListener(this);
         viewCreateAccount.setOnClickListener(this);
+//        new OpenKeyboard().execute();
+
+
     }
 
     @Override
@@ -119,11 +129,75 @@ public class FragmentLogin extends Fragment implements View.OnClickListener {
         this.listener = listener;
     }
 
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_GO) {
+            progressFrame.setVisibility(View.VISIBLE);
+            String json = new Gson().toJson(new Login(inputLogin.getText().toString(),inputPassword.getText().toString()));
+//                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("AUTH", getActivity().MODE_PRIVATE);
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putString("EMAIL", inputLogin.getText().toString());
+//                editor.commit();
+            MediaType type = MediaType.parse("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create(type, json);
+            Request request = new Request.Builder()
+                    .url("https://landmarket1.herokuapp.com/login/login/")
+                    .post(body)
+                    .build();
+            OkHttpClient clientOK = new OkHttpClient();
+            clientOK.setConnectTimeout(5, TimeUnit.SECONDS);
+            clientOK.setReadTimeout(5, TimeUnit.SECONDS);
+
+            clientOK.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+                    e.printStackTrace();
+                    handler.post(new ErrorRequest("Connection error"));
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    if (response.isSuccessful()) {
+                        handler.post(new RequestOk());
+                        Token token = new Gson().fromJson(response.body().string(), Token.class);
+
+                        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("AUTH", getActivity().MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("TOKEN", token.getToken());
+                        editor.commit();
+                        Log.d("TAG", "onResponse: " + token.getToken());
+                        if (response.code() < 400) {
+                            listener.onClickNextFromLogin(true);
+                        }
+                    } else if (response.code() == 401) {
+                        handler.post(new ErrorRequest("Wrong password or login!"));
+                    } else handler.post(new ErrorRequest("Server error!"));
+                }
+            });
+            return true;
+        }
+        return false;
+    }
+
     public interface FragmentListenerLogin {
         void onClickNextFromLogin(boolean bool);
     }
 
 
+    class OpenKeyboard extends AsyncTask<Object,Object,Object> {
+
+        @Override
+        protected Object doInBackground(Object... params) {
+            try {
+                new Thread().sleep(300);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
     class ErrorRequest implements Runnable {
         private String result;
 

@@ -2,11 +2,17 @@ package com.example.esca.landmarket.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.Button;
+import android.widget.ImageSwitcher;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 
 import com.example.esca.landmarket.R;
@@ -20,9 +26,9 @@ import java.util.ArrayList;
 
 public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.MyViewHolder> {
     private ArrayList<LandInfo> landInfos = new ArrayList<>();
-    private MasterClickListener listener;
+    private LandInfoClickListener listener;
 
-    public MyRecyclerAdapter(MasterClickListener listener) {
+    public MyRecyclerAdapter(LandInfoClickListener listener) {
         this.listener = listener;
     }
 
@@ -91,6 +97,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
         private TextView area, assignment, price, description, address,owner;
         private Button btnShowOnTheMap;
 
+
         public MyViewHolder(View view) {
             super(view);
             owner = (TextView) view.findViewById(R.id.row_sections_view_owner);
@@ -99,6 +106,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
             price = (TextView) view.findViewById(R.id.row_sections_view_price);
             description = (TextView) view.findViewById(R.id.row_sections_view_date);
             address = (TextView) view.findViewById(R.id.row_sections_view_address);
+
 
             btnShowOnTheMap = (Button) view.findViewById(R.id.row_sections_btn_show_on_the_map);
             btnShowOnTheMap.setOnClickListener(new View.OnClickListener() {
@@ -114,9 +122,11 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<MyRecyclerAdapter.My
                 }
             });
         }
+
+
     }
 
-    public interface MasterClickListener {
+    public interface LandInfoClickListener {
         void onClickShowOnTheMap(View view, int position);
 
         void onRowClick(View view, int position);

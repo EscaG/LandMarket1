@@ -1,7 +1,6 @@
 package com.example.esca.landmarket.fragments;
 
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,11 +13,12 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.esca.landmarket.R;
@@ -40,7 +40,7 @@ import java.util.List;
  * Created by Esca on 10.06.2017.
  */
 
-public class FragmentSections extends Fragment implements View.OnClickListener, MyRecyclerAdapter.MasterClickListener {
+public class FragmentSections extends Fragment implements View.OnClickListener, MyRecyclerAdapter.LandInfoClickListener,TextView.OnEditorActionListener {
 
     public static final String TAG = "ONTAG";
     private static final String PATH = "/guest/list";
@@ -108,6 +108,11 @@ public class FragmentSections extends Fragment implements View.OnClickListener, 
     public void onRowClick(View view, int position) {
         LandInfo landInfo = adapter.getItemByPosition(position);
         listener.onClickNextFromSections(adapter, position, landInfo, true);
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        return false;
     }
 
 

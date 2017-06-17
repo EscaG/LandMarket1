@@ -16,11 +16,13 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/frag_login_edit_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Login"
+                android:focusable="true"
+                android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
                 android:textSize="25sp" />
         </android.support.design.widget.TextInputLayout>
@@ -31,12 +33,13 @@
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp">
 
-            <AutoCompleteTextView
+            <EditText
                 android:id="@+id/frag_login_edit_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:hint="Password"
+                android:imeOptions="actionGo"
                 android:inputType="textPassword"
                 android:textSize="25sp" />
         </android.support.design.widget.TextInputLayout>

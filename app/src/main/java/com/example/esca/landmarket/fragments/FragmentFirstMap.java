@@ -1,5 +1,6 @@
 package com.example.esca.landmarket.fragments;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
@@ -11,9 +12,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -63,14 +68,13 @@ import java.util.Map;
  * Created by Esca on 14.05.2017.
  */
 
-public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, View.OnClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleApiClient.OnConnectionFailedListener {
+public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, View.OnClickListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener, GoogleApiClient.OnConnectionFailedListener, TextView.OnEditorActionListener {
 
     private GoogleMap googleMap;
     private ArrayList<String> str = new ArrayList<String>();
     private String[] strTest;
     private Handler handler;
     private static final String PATH = "/guest/list";
-    //    private MasterArray masterArray = new MasterArray();
     public static final String TAG = "ONTAG";
     private Geocoder geocoder;
     private LatLng latLng;
@@ -114,7 +118,9 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
         imgSearch.setOnClickListener(this);
 //        btnSearch = (Button) view.findViewById(R.id.map_first_btn_search);
         inputAddress = (AutoCompleteTextView) view.findViewById(R.id.map_first_input_search_address);
+        inputAddress.clearFocus();
         inputAddress.setOnItemClickListener(mAutocompleteClickListener);
+        inputAddress.setOnEditorActionListener(this);
         inputAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -124,7 +130,6 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
         mAdapter = new PlaceAutocompleteAdapter(getActivity(), mGoogleApiClient, BOUNDS_GREATER_SYDNEY, null);
         inputAddress.setAdapter(mAdapter);
         geocoder = new Geocoder(getActivity().getBaseContext());
-//        btnSearch.setOnClickListener(this);
 
         linear = (LinearLayout) view.findViewById(R.id.linear);
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("ACTION", getActivity().MODE_PRIVATE);
@@ -233,6 +238,36 @@ public class FragmentFirstMap extends Fragment implements OnMapReadyCallback, Vi
 
     public void setSelectedMasterListene(ShowLoadLand listener) {
         this.listener = listener;
+    }
+
+    @Override
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+            List<Address> addressList = null;
+            location = inputAddress.getText().toString();
+
+            if (null != googleMap) {
+                if (location != null || !location.equals("")) {
+                    Geocoder geocoder = new Geocoder(getActivity());
+                    try {
+                        addressList = geocoder.getFromLocationName(location, 1);
+
+                    Address address = addressList.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    googleMap.addMarker(new MarkerOptions().position(latLng).title(location).draggable(true));
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            inputAddress.clearFocus();
+            ((InputMethodManager) getActivity().getSystemService(getActivity().INPUT_METHOD_SERVICE))
+                    .hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+            return true;
+        }
+        return false;
     }
 
     public interface ShowLoadLand {

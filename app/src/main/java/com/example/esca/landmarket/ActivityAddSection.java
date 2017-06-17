@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -64,7 +65,8 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
     private ScrollView relativeLayout;
     private FrameLayout frameLayout;
     private ImageView imageFirst, imageSecond, imageThird;
-    private Button btnShowOnTheMap, btnBack, btnSave;
+    private Button btnShowOnTheMap;
+    private FloatingActionButton fab;
     private AutoCompleteTextView inputAddress;
     protected GoogleApiClient mGoogleApiClient;
     private PlaceAutocompleteAdapter mAdapter;
@@ -109,10 +111,13 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
         imageSecond = (ImageView) findViewById(R.id.image_second);
         imageThird = (ImageView) findViewById(R.id.image_third);
         btnShowOnTheMap = (Button) findViewById(R.id.add_section_btn_show_on_the_map);
-        btnBack = (Button) findViewById(R.id.add_section_btn_back);
-        btnSave = (Button) findViewById(R.id.add_section_btn_add);
-        btnBack.setOnClickListener(this);
-        btnSave.setOnClickListener(this);
+        fab = (FloatingActionButton) findViewById(R.id.add_section_fab);
+        fab.setImageResource(R.mipmap.ic_save);
+        fab.setOnClickListener(this);
+//        btnBack = (Button) findViewById(R.id.add_section_btn_back);
+//        btnSave = (Button) findViewById(R.id.add_section_btn_add);
+//        btnBack.setOnClickListener(this);
+//        btnSave.setOnClickListener(this);
         imageFirst.setOnClickListener(this);
         imageSecond.setOnClickListener(this);
         imageThird.setOnClickListener(this);
@@ -137,6 +142,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
         if (goBack) {
             relativeLayout.setVisibility(View.VISIBLE);
             frameLayout.setVisibility(View.INVISIBLE);
+            super.onBackPressed();
         }
         super.onBackPressed();
     }
@@ -151,7 +157,6 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
             FragmentMap fragment = new FragmentMap();
             if (inputAddress.getText().toString() != null && !inputAddress.getText().toString().equals("")) {
                 String location = inputAddress.getText().toString();
-//                fragment = FragmentMap.newInstance(location);
                 fragment.setAddress(location);
             }
             getSupportFragmentManager()
@@ -159,9 +164,9 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
                     .replace(R.id.container_for_add_frag, fragment, "SHOW_ON_THE_MAP")
                     .addToBackStack("SHOW_ON_THE_MAP")
                     .commit();
-        } else if (v.getId() == R.id.add_section_btn_back) {
+        } /*else if (v.getId() == R.id.add_section_btn_back) {
             finish();
-        } else if (v.getId() == R.id.add_section_btn_add) {
+        }*/ else if (v.getId() == R.id.add_section_fab) {
             SharedPreferences sharedPreferences = getSharedPreferences("AUTH", MODE_PRIVATE);
             final String token = sharedPreferences.getString("TOKEN", "");
             Log.d("TAG", "putClientUpdate: " + token);
@@ -217,55 +222,10 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
 //            startActivityForResult(photoPickerIntent, 1);
         } else if (v.getId() == R.id.image_second) {
             selectImage(PICK_IMAGE_CAMERA_SECOND, PICK_IMAGE_GALLERY_SECOND);
-
-//            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//            photoPickerIntent.setType("image/*");
-//            startActivityForResult(photoPickerIntent, 2);
         } else if (v.getId() == R.id.image_third) {
             selectImage(PICK_IMAGE_CAMERA_THIRD, PICK_IMAGE_GALLERY_THIRD);
-//            Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//            photoPickerIntent.setType("image/*");
-//            startActivityForResult(photoPickerIntent, 3);
         }
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
-//        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-//        if (requestCode == 1 && resultCode == RESULT_OK) {
-//            try {
-//                Uri imageUri = imageReturnedIntent.getData();
-//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-////                MainActivity.CompleteManager.callComplete(selectedImage);
-//                imageFirst.setImageBitmap(selectedImage);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        } else if (requestCode == 2 && resultCode == RESULT_OK) {
-//            try {
-//                Uri imageUri = imageReturnedIntent.getData();
-//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-////                MainActivity.CompleteManager.callComplete(selectedImage);
-//                imageSecond.setImageBitmap(selectedImage);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        } else if (requestCode == 3 && resultCode == RESULT_OK) {
-//            try {
-//                Uri imageUri = imageReturnedIntent.getData();
-//                InputStream imageStream = getContentResolver().openInputStream(imageUri);
-//                Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-////                MainActivity.CompleteManager.callComplete(selectedImage);
-//                imageThird.setImageBitmap(selectedImage);
-//            } catch (FileNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//
-//
-//        }
-//    }
 
     private void selectImage(final int cameraPosition,final int galleryPosition) {
         try {
@@ -275,8 +235,6 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
                 final CharSequence[] options = {"Take Photo", "Choose From Gallery", "Cancel"};
                 android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(this);
                 builder.setTitle("Select Option");
-//                builder.setView(R.layout.custom_dialog);
-//                builder.setIcon(R.mipmap.ic_launcher);
                 builder.setItems(options, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int item) {
@@ -294,7 +252,6 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
                                     startActivityForResult(intent, cameraPosition);
                                     break;
                             }
-//                            startActivityForResult(intent, PICK_IMAGE_CAMERA_FIRST);
                         } else if (options[item].equals("Choose From Gallery")) {
                             dialog.dismiss();
                             Intent pickPhoto = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -425,7 +382,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
             PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId);
             placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
 
-            Toast.makeText(getApplicationContext(), "Clicked: " + primaryText, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "Clicked: " + primaryText, Toast.LENGTH_SHORT).show();
 
         }
     };
@@ -454,7 +411,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // TODO(Developer): Check error code and notify the user of error state and resolution.
-        Toast.makeText(this, "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Could not connect to Google API Client: Error " + connectionResult.getErrorCode(), Toast.LENGTH_SHORT).show();
     }
 
     class ErrorRequest implements Runnable {
@@ -468,7 +425,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
         public void run() {
 //            progressFrame.setVisibility(View.INVISIBLE);
 //            viewResult.setText(result);
-            Toast.makeText(ActivityAddSection.this, result, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ActivityAddSection.this, result, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -478,7 +435,7 @@ public class ActivityAddSection extends AppCompatActivity implements GoogleApiCl
         public void run() {
 //            progressFrame.setVisibility(View.INVISIBLE);
 //            viewResult.setText("Registration Ok!");
-            Toast.makeText(ActivityAddSection.this, "Change successfully", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(ActivityAddSection.this, "Change successfully", Toast.LENGTH_SHORT).show();
         }
     }
 

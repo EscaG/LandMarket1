@@ -28,6 +28,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -62,7 +64,7 @@ import java.util.Locale;
 import static android.R.attr.bitmap;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentLogin.FragmentListenerLogin, FragmentRegistration.FragmentListenerRegistration, FragmentSections.NextFromFragmentSections, View.OnClickListener, FragmentProfile.FragmentListenerProfile, FragmentProfileEdit.FragmentListenerFromProfileEdit, SellerInfo.DownloadClient, FragmentFirstMap.ShowLoadLand, FragmentLandForBuyer.FragmentListenerLandForBuyer {
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentLogin.FragmentListenerLogin, FragmentRegistration.FragmentListenerRegistration, FragmentSections.NextFromFragmentSections, View.OnClickListener, FragmentProfile.FragmentListenerProfile, FragmentProfileEdit.FragmentListenerFromProfileEdit, SellerInfo.DownloadClient, FragmentFirstMap.ShowLoadLand {
     private final int SELECT_PHOTO = 1;
     private FragmentManager manager;
     private FragmentTransaction transaction;
@@ -111,16 +113,20 @@ public class MainActivity extends AppCompatActivity
         fab.setVisibility(View.INVISIBLE);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         containerFragment = (FrameLayout) findViewById(R.id.frag_container);
         mapContainer = (LinearLayout) findViewById(R.id.map_container);
-
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+////            getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//            ((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
+//                    .hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+//        }
         handler = new Handler();
     }
 
@@ -143,7 +149,7 @@ public class MainActivity extends AppCompatActivity
         if (!result) {
             after.setVisibility(View.GONE);
             before.setVisibility(View.VISIBLE);
-            logo.setImageResource(R.mipmap.ic_launcher);
+            logo.setImageResource(R.mipmap.logo);
         } else {
             before.setVisibility(View.GONE);
             after.setVisibility(View.VISIBLE);
@@ -247,6 +253,8 @@ public class MainActivity extends AppCompatActivity
                 intent = new Intent(MainActivity.this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 mapContainer.setVisibility(View.VISIBLE);
+                sharedPreferences = getSharedPreferences("AUTH", MODE_PRIVATE);
+                editor.putString("TOKEN", "");
                 startActivity(intent);
                 break;
         }
@@ -455,17 +463,14 @@ public class MainActivity extends AppCompatActivity
         this.landInfo = landInfo;
         transaction = manager.beginTransaction();
         FragmentLandForBuyer fragmentLandForBuyer = new FragmentLandForBuyer();
-        fragmentLandForBuyer.setFragmentListener(this);
+//        fragmentLandForBuyer.setFragmentListener(this);
         transaction.replace(R.id.map_container, fragmentLandForBuyer, "FRAG_SELLER");
         fragmentLandForBuyer.setLand(this.landInfo);
         transaction.addToBackStack("FRAG_SELLER");
         transaction.commit();
     }
 
-    @Override
-    public void onClickNextFromLandForBuyer(boolean bool) {
 
-    }
 
     private void selectImage() {
         try {

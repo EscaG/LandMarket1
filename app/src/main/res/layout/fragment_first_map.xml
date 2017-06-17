@@ -33,7 +33,10 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="4dp"
             android:layout_weight="1"
+            android:inputType="text"
             android:hint=" Type your choose"
+            android:imeOptions="actionSearch"
+            android:completionThreshold="4"
             android:lines="1" />
 
 <LinearLayout

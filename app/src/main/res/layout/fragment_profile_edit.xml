@@ -54,6 +54,7 @@
             android:layout_marginRight="20dp"
             android:layout_marginTop="10dp"
             android:hint="Phone"
+            android:imeOptions="actionNext"
             android:textSize="20sp" />
 
         <EditText
@@ -64,6 +65,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="Address"
+            android:imeOptions="actionNext"
             android:textSize="20sp" />
 
         <EditText
@@ -74,6 +76,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="Manager's name"
+            android:imeOptions="actionNext"
             android:textSize="20sp" />
 
         <EditText
@@ -84,6 +87,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="Teudat Zeut"
+            android:imeOptions="actionNext"
             android:textSize="20sp" />
 
         <EditText
@@ -94,6 +98,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="Email"
+            android:imeOptions="actionNext"
             android:inputType="textEmailAddress"
             android:textSize="20sp" />
 
@@ -104,6 +109,7 @@
             android:layout_below="@+id/frag_profile_edit_input_email"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
+            android:imeOptions="actionNext"
             android:hint="Password"
             android:inputType="textPassword"
             android:textSize="20sp" />
@@ -116,6 +122,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:hint="Confirm"
+            android:imeOptions="actionGo"
             android:inputType="textPassword"
             android:textSize="20sp" />
 
